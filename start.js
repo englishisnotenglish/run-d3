@@ -34,9 +34,6 @@ function drawPlayer() {
     var x = player.x,
         y = player.y;
     //使用arc方法，创建火柴人的头部。一个空心的，边框为红色的圆形。
-    if(player.jumping) {
-        console.log(player);
-    }
 
     ctx.beginPath();
     ctx.arc(x, y, 15, 0, Math.PI*2, true);
@@ -70,12 +67,17 @@ function drawPlayer() {
 document.onkeydown = function(e) {
     switch(e.code) {
         case 'ArrowUp' :
+            player.status = 'jumping';
             player.jump(player.speed);
             break;
         case 'ArrowLeft' :
+            player.dir = 'left';
+            player.status = 'moving';
             player.move('left', player.speed);
             break;
         case 'ArrowRight' :
+            player.dir = 'right';
+            player.status = 'moving';
             player.move('right', player.speed);
             break;
         default:
@@ -93,17 +95,40 @@ function paint() {
     ctx.clearRect(0, 0, 1338, 625);
 
     if(!player.isOver()) {
-        drawPlayer();
-        player.downing();
-        for(var i = 0, len = obstacles.length; i < len; i++) {
-            player.canLand(obstacles[i].x, obstacles[i].y, 200);
+        if(player.status == 'moving') {
+            for(var j = 0, length = obstacles.length; j < length; j++) {
+                obstacles[j].move(player.speed, player.dir);
+            }
         }
         drawObstacles();
+        drawPlayer();
+        player.downing();
+        switch (player.status) {
+            case 'jumping':
+                for(var i = 0, len = obstacles.length; i < len; i++) {
+                    player.canLand(obstacles[i].x, obstacles[i].y, 50);
+                }
+                break;
+            case 'moving':
+                player.status = 'jumping';
+                //for(var j = 0, length = obstacles.length; j < length; j++) {
+                //    player.isFallingOut(obstacles[j].x, obstacles[j].y, 50);
+                //
+                //    player.jumping = true;
+                //    if(player.isFallout == false) {
+                //        //player.jumping = false;
+                //        break;
+                //    }else {
+                //
+                //    }
+                //}
+                break;
+            default:
+                return;
+        }
     }else
         timer.stop();
 }
 
-
 start();
-
 var timer = d3.timer(paint, 20);

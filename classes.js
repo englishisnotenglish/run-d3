@@ -6,11 +6,13 @@ function Player(x, y) {
     this.x = x || 0;
     this.y = y || 625;
     this.width = 30;
-    this.height=  83;
-    this.speed = 5;
+    this.height=  80;
+    this.speed = 15;
     this.accelerate = 0;
     this.isEnd = false;
     this.jumping = false;
+    this.status = null;
+    this.dir = null;
 }
 
 Player.prototype.jump = function (speed) {
@@ -18,7 +20,7 @@ Player.prototype.jump = function (speed) {
     this.jumping = true;
 };
 
-Player.prototype.move = function (dir, speed) {
+Player.prototype.move = function(dir, speed) {
     if(dir == 'left')
         this.x -= speed;
     else
@@ -26,25 +28,25 @@ Player.prototype.move = function (dir, speed) {
 };
 
 Player.prototype.isOver = function () {
-    if(this.y > 625)
+    if(this.y >= 625)
         this.isEnd = true;
     return this.isEnd;
 };
 
-Player.prototype.downing = function() {
+Player.prototype.downing = function () {
     if(this.jumping) {
         --this.accelerate;
         this.y -= this.accelerate;
     }
 };
 
-Player.prototype.canLand = function (x, y, width) {
+Player.prototype.canLand = function(x, y, width) {
     if(!this.jumping) return;
     if(this.x >= x && this.x <= x + width) {
         if(this.y + this.height >= y) {
-            console.log(this, x, y);
             this.y = y - this.height;
             this.jumping = false;
+            this.accelerate = 0;
         }
     }
 };
@@ -55,9 +57,9 @@ function Obstacle(x, y) {
     this.y = y || 0;
 }
 
-Obstacle.prototype.move = function (speed, dir) {
+Obstacle.prototype.move = function(speed, dir) {
     if(dir == 'left')
-        this.x += speed;
+        this.x = (this.x + speed) % 1339;
     else
-        this.x -= speed;
+        this.x = (this.x - speed + 1339) % 1339;
 };
